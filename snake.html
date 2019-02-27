@@ -1,0 +1,78 @@
+<canvas id="gc" height="300" width="300"></canvas>
+<script>
+    canvas = document.getElementById("gc")
+    context = canvas.getContext("2d")
+
+    const VEL = 10
+    const BLKSZ = 10
+    const DISPSZ = BLKSZ - 1
+    const INT_SNKSZ = 5
+    const GAMESPEED = 12
+
+    sx = canvas.width / 2
+    sy = canvas.height / 2;
+    vsx = 1
+    vsy = 0
+    tail = INT_SNKSZ
+    sPos = []
+    fx = Math.floor(Math.random() * 30) * 10
+    fy = Math.floor(Math.random() * 30) * 10
+
+    function gameEngine() {
+
+        //moveSnakePos
+        sPos.unshift({ x: sx, y: sy })
+        if (sPos.length > tail)
+            sPos.pop()
+        if (sx == 0)
+            sx = canvas.width
+        if (sy == 0)
+            sy = canvas.height
+        sx = (sx + vsx * VEL) % canvas.width
+        sy = (sy + vsy * VEL) % canvas.height
+
+        //clearConvas
+        context.fillStyle = "black";
+        context.fillRect(0, 0, canvas.width, canvas.height);
+
+        //drawSnake
+        context.fillStyle = "blue";
+        context.fillRect(sx, sy, DISPSZ, DISPSZ);
+        for (i in sPos) {
+            context.fillRect(sPos[i].x, sPos[i].y, DISPSZ, DISPSZ);
+        }
+
+        //drawFood
+        context.fillStyle = "yellow";
+        context.fillRect(fx, fy, DISPSZ, DISPSZ)
+
+        //collision detection
+        for (i in sPos) {
+            if (sPos[i].x == sx && sPos[i].y == sy) {
+                tail = INT_SNKSZ
+                while (sPos.length > tail)
+                    sPos.pop()
+            }
+        }
+
+        //snake eats food
+        if (sx == fx && sy == fy) {
+            tail++
+            fx = Math.floor(Math.random() * 30) * 10
+            fy = Math.floor(Math.random() * 30) * 10
+        }
+    }
+
+    function checkKey(e) {
+        vsx = vsy = 0
+        switch (e.keyCode) {
+            case 38: vsy = -1; break; //upKey
+            case 40: vsy = 1; break;   //downKey
+            case 37: vsx = -1; break;   //leftKey
+            case 39: vsx = 1; break;   //rightKey
+        }
+    }
+
+    document.onkeydown = checkKey;
+    setInterval(gameEngine, 1000 / GAMESPEED);
+</script>
